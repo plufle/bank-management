@@ -3,6 +3,8 @@ import random
 from cryptography.fernet import Fernet
 import datetime
 import pytz
+from datetime import date, timedelta
+
 
 transactionPage = 1
 
@@ -74,9 +76,11 @@ def loginscreen():
         else:
             print("please choose a valid option \n kindly try again")
 
+def loancheak():
+    pass
+
 
 def loan():
-    global current_user_global
     print()
     print("--------------------------------------")
     print("             Loan                     ")
@@ -102,8 +106,9 @@ def loan():
 
 
 def requestloan():
+    global current_user_global
     loan_amt = int(input("Please Enter The Amount to be Requested : "))
-    if loan_amt < 10000:
+    if loan_amt < 1000:
         print("Amount Too Low\nPlease Enter an Amount above rs50000")
     else:
         if current_user_global[3] > (loan_amt / 10):
@@ -111,14 +116,76 @@ def requestloan():
             rate = 7.5
             simple_interest = (loan_amt * time * rate) / 100
             total_payment = loan_amt + simple_interest
-            print(total_payment)
+            month = time*12
+            interst_per_month = total_payment//month
+            interest_dates = loan_dates(time)
+            loan_date_list = currenttime()
+            loan_date = loan_date_list[0]
+            time = loan_date_list[1]
+            total_paid = 0
+            status = 'ongoing'
+            insert = (current_user_global[0],loan_amt,total_payment,loan_date,interst_per_month,'{}'.format(interest_dates),total_paid,status)
+            insert_statement = "insert into loan values{}".format(insert)
+            cursor.execute(insert_statement)
+            current_balance = current_user_global[3]+ loan_amt
+            balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
+                                                                                         current_user_global[0])
+            cursor.execute(balance_update)
+            current_user_global[3] = current_balance
+            trans_log = (
+                current_user_global[0], '{}'.format(['LOAN', 'CREDIT', loan_amt,current_balance]),
+                loan_date,time)
+            trans_log_statement = "insert into trans values{}".format(trans_log)
+            cursor.execute(trans_log_statement)
+            database.commit()
+
 
         else:
             print("Loan Declined\nCredit Too Low")
 
+    return current_user_global
+
+
+def loan_dates(x):
+    month = x*12
+    date_interest = []
+    days = 30
+    for i in range(0, month):
+        days_after = (date.today()+timedelta(days)).isoformat()
+        days = days+30
+        date_interest.append(days_after)
+
+    return date_interest
+
 
 def loandetails():
-    pass
+    global current_user_global
+    cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+    loan_details = list(cursor.fetchone())
+    print(loan_details)
+    loan_amt = loan_details[1]
+    total_amount = loan_details[2]
+    loan_date = loan_details[3]
+    interest_per_month = loan_details[4]
+    interest_date = eval(loan_details[5])
+    next_payment = interest_date[0]
+    total_amount_paid = loan_details[6]
+    if loan_details[7] == 'ongoing':
+       staus = 'Loan amount not fully paid'
+    else:
+        staus = 'Loan amount fully paid'
+    print('______________________________' * 3)
+    print('                                       loan details')
+    print('______________________________' * 3)
+    print("Loan amount received            : ", loan_amt)
+    print("Total amount including interest : ", total_amount)
+    print("Starting date of loan           : ", loan_date)
+    print("Interest per month              : ", interest_per_month)
+    print("Next payment date               : ", next_payment)
+    print("Total amount paid               : ", total_amount_paid)
+    print()
+    print(staus)
+    print('______________________________' * 3)
 
 
 def loanrepayment():
@@ -316,6 +383,8 @@ else:
     createaccount()
     current_user_global = login()
 
+
 loginscreen()
+
 
 database.close()

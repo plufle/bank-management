@@ -1,13 +1,25 @@
-import datetime
+from datetime import date, timedelta
 
-# for timezone()
-import pytz
+def w(x):
+    month = x*12
+    date_interest = []
+    current_date = date.today().isoformat()
+    days = 30
+    for i in range(0, month):
+        days_after = (date.today()+timedelta(days)).isoformat()
+        days = days+30
+        date_interest.append(days_after)
 
-# using now() to get current time
-'''current_time = datprint('{:<10s}{:>4s}{:>15s}{:>22s}{:>12s}'.format('FROM/TO', "CREDIT/DEBIT", 'AMOUNT', 'CURRENT BALANCE', 'DATE', 'TIME'))etime.datetime.now(pytz.timezone('Asia/Kolkata'))
+    return  date_interest
 
-d_string = current_time.strftime("20%y-%m-%d")
-t_string = current_time.strftime("%H:%M:%S")
-print("time =", t_string)
-print("date =", d_string)'''
+year = int(input('enetr number of yeras : '))
+lel = w(year)
+
+
+
+
+
+
+
+
 
