@@ -41,8 +41,8 @@ def createaccount():
         database.commit()
         print("account sucessfully created :-")
         print("name    = {}".format(name))
-        print("userid  = {}".format((userid)))
-        print("pin     = {}".format((pin)))
+        print("userid  = {}".format(userid))
+        print("pin     = {}".format(pin))
         print("balance = 0")
 
 
@@ -133,7 +133,7 @@ def showtransaction():
     cursor.execute(trans_fetch)
     while True:
         all_trans = cursor.fetchall()
-        if all_trans == None:
+        if all_trans is None:
             break
         else:
             show_trans = int(input("press 1 to show transaction : "))
