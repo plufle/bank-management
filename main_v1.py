@@ -4,6 +4,7 @@ from cryptography.fernet import Fernet
 import datetime
 import pytz
 from datetime import date, timedelta
+import main_passwords
 
 transactionPage = 1
 
@@ -398,14 +399,15 @@ def decodeStr(text):
 
 
 try:
-    database = connector.connect(host='localhost', database='bank_v2', user='root', password='Sarvesh@2005')
+    database = connector.connect(host=main_passwords.hosts, database=main_passwords.name,
+                                 user=main_passwords.users, password=main_passwords.database_password)
 
     print('successfully connected to database')
 except:
     print('database not connected')
 
 cursor = database.cursor()
-key = "ardUzMIZoH2GkWy3anKAs2YFTFyLHrcqub3WHazfdUY=".encode()
+key = main_passwords.frenet_key.encode()
 fernet = Fernet(key)
 
 print("___________WELCOME TO THE BANK__________")
@@ -422,5 +424,7 @@ else:
     current_user_global = login()
 
 
-
 database.close()
+#TODO : loan repayment
+#TODO : admin account
+#TODO :add exit option on show transaction
