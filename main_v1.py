@@ -5,7 +5,6 @@ import datetime
 import pytz
 from datetime import date, timedelta
 
-
 transactionPage = 1
 
 
@@ -76,9 +75,6 @@ def loginscreen():
         else:
             print("please choose a valid option \n kindly try again")
 
-def loancheak():
-    pass
-
 
 def loan():
     print()
@@ -116,25 +112,27 @@ def requestloan():
             rate = 7.5
             simple_interest = (loan_amt * time * rate) / 100
             total_payment = loan_amt + simple_interest
-            month = time*12
-            interst_per_month = total_payment//month
+            month = time * 12
+            interst_per_month = total_payment // month
             interest_dates = loan_dates(time)
             loan_date_list = currenttime()
             loan_date = loan_date_list[0]
             time = loan_date_list[1]
             total_paid = 0
             status = 'ongoing'
-            insert = (current_user_global[0],loan_amt,total_payment,loan_date,interst_per_month,'{}'.format(interest_dates),total_paid,status)
+            insert = (
+            current_user_global[0], loan_amt, total_payment, loan_date, interst_per_month, '{}'.format(interest_dates),
+            total_paid, status)
             insert_statement = "insert into loan values{}".format(insert)
             cursor.execute(insert_statement)
-            current_balance = current_user_global[3]+ loan_amt
+            current_balance = current_user_global[3] + loan_amt
             balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
                                                                                          current_user_global[0])
             cursor.execute(balance_update)
             current_user_global[3] = current_balance
             trans_log = (
-                current_user_global[0], '{}'.format(['LOAN', 'CREDIT', loan_amt,current_balance]),
-                loan_date,time)
+                current_user_global[0], '{}'.format(['LOAN', 'CREDIT', loan_amt, current_balance]),
+                loan_date, time)
             trans_log_statement = "insert into trans values{}".format(trans_log)
             cursor.execute(trans_log_statement)
             database.commit()
@@ -147,45 +145,85 @@ def requestloan():
 
 
 def loan_dates(x):
-    month = x*12
+    month = x * 12
     date_interest = []
     days = 30
     for i in range(0, month):
-        days_after = (date.today()+timedelta(days)).isoformat()
-        days = days+30
+        days_after = (date.today() + timedelta(days)).isoformat()
+        days = days + 30
         date_interest.append(days_after)
 
     return date_interest
 
 
-def loandetails():
+def loan_check():
     global current_user_global
     cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
-    loan_details = list(cursor.fetchone())
-    print(loan_details)
-    loan_amt = loan_details[1]
-    total_amount = loan_details[2]
-    loan_date = loan_details[3]
-    interest_per_month = loan_details[4]
-    interest_date = eval(loan_details[5])
-    next_payment = interest_date[0]
-    total_amount_paid = loan_details[6]
-    if loan_details[7] == 'ongoing':
-       staus = 'Loan amount not fully paid'
+    loan_details = cursor.fetchone()
+    if loan_details == None:
+        return True
     else:
-        staus = 'Loan amount fully paid'
-    print('______________________________' * 3)
-    print('                                       loan details')
-    print('______________________________' * 3)
-    print("Loan amount received            : ", loan_amt)
-    print("Total amount including interest : ", total_amount)
-    print("Starting date of loan           : ", loan_date)
-    print("Interest per month              : ", interest_per_month)
-    print("Next payment date               : ", next_payment)
-    print("Total amount paid               : ", total_amount_paid)
-    print()
-    print(staus)
-    print('______________________________' * 3)
+        return False
+
+def loan_check_login():
+    global current_user_global
+    cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+    loan_details = cursor.fetchone()
+    if loan_details == None:
+        loginscreen()
+    else:
+        total_amount = loan_details[2]
+        total_amount_paid = loan_details[6]
+        interest_date = eval(loan_details[5])
+        next_payment = interest_date[0]
+        current_date_list = currenttime()
+        current_date = current_date_list[0]
+        interest_per_month = loan_details[4]
+        if total_amount >= total_amount_paid:
+            if current_date < next_payment:
+                print("Your next loan payment due is on {0} for a payment of {1}".format(next_payment,interest_per_month))
+                loginscreen()
+            else:
+                print("Pay your loan due to continue using the bank")
+                loanrepayment()
+        else:
+            loginscreen()
+
+def loandetails():
+    while True:
+        if loan_check():
+            print('______________________________' * 3)
+            print('You dont have any ongoing loans\n if you want one try appyling for it')
+            print('______________________________' * 3)
+            break
+        else:
+            global current_user_global
+            cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+            loan_details = list(cursor.fetchone())
+            loan_amt = loan_details[1]
+            total_amount = loan_details[2]
+            loan_date = loan_details[3]
+            interest_per_month = loan_details[4]
+            interest_date = eval(loan_details[5])
+            next_payment = interest_date[0]
+            total_amount_paid = loan_details[6]
+            if loan_details[7] == 'ongoing':
+                staus = 'Loan amount not fully paid'
+            else:
+                staus = 'Loan amount fully paid'
+            print('______________________________' * 3)
+            print('                                       loan details')
+            print('______________________________' * 3)
+            print("Loan amount received            : ", loan_amt)
+            print("Total amount including interest : ", total_amount)
+            print("Starting date of loan           : ", loan_date)
+            print("Interest per month              : ", interest_per_month)
+            print("Next payment date               : ", next_payment)
+            print("Total amount paid               : ", total_amount_paid)
+            print()
+            print(staus)
+            print('______________________________' * 3)
+            break
 
 
 def loanrepayment():
@@ -261,7 +299,7 @@ def deposit():
     current_date = current_date_time[0]
     current_time = current_date_time[1]
     trans_log = (
-    current_user_global[0], '{}'.format(['self', 'CREDIT', dep_amt, current_balance]), current_date, current_time)
+        current_user_global[0], '{}'.format(['self', 'CREDIT', dep_amt, current_balance]), current_date, current_time)
     insert = 'insert into trans values{}'.format(trans_log)
     cursor.execute(insert)
     database.commit()
@@ -289,7 +327,7 @@ def withdraw():
     current_date = current_date_time[0]
     current_time = current_date_time[1]
     trans_log = (
-    current_user_global[0], '{}'.format(['self', 'DEBIT ', with_amt, current_balance]), current_date, current_time)
+        current_user_global[0], '{}'.format(['self', 'DEBIT ', with_amt, current_balance]), current_date, current_time)
     insert = 'insert into trans values{}'.format(trans_log)
     cursor.execute(insert)
     database.commit()
@@ -324,11 +362,11 @@ def transaction():
     current_date = current_date_time[0]
     current_time = current_date_time[1]
     to_trans_log = (
-    to_person_input, '{}'.format([current_user_global[0], 'CREDIT', amount, to_person_after_balance]), current_date,
-    current_time)
+        to_person_input, '{}'.format([current_user_global[0], 'CREDIT', amount, to_person_after_balance]), current_date,
+        current_time)
     from_trans_log = (
-    current_user_global[0], '{}'.format([to_person_input, 'DEBIT ', amount, current_user_balance]), current_date,
-    current_time)
+        current_user_global[0], '{}'.format([to_person_input, 'DEBIT ', amount, current_user_balance]), current_date,
+        current_time)
     insert_1 = 'insert into trans values{}'.format(to_trans_log)
     insert_2 = 'insert into trans values{}'.format(from_trans_log)
     cursor.execute(insert_1)
@@ -378,13 +416,11 @@ ask_login_signup = int(input("Enter an Option : "))
 
 if ask_login_signup == 1:
     current_user_global = login()
-    print(current_user_global)
+    loan_check_login()
 else:
     createaccount()
     current_user_global = login()
 
-
-loginscreen()
 
 
 database.close()
