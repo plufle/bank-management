@@ -228,7 +228,50 @@ def loandetails():
 
 
 def loanrepayment():
-    pass
+    global current_user_global
+    while True:
+        print('______________________________' * 3)
+        print('                               loan repayment ')
+        print('______________________________' * 3)
+        if loan_check():
+            print("No ongoing loans found\nif needed try applying one")
+        else:
+            cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+            loan_details = list(cursor.fetchone())
+            total_amount_paid = loan_details[6]
+            total_amount = loan_details[2]
+            interest_per_month = loan_details[4]
+            interest_date = eval(loan_details[5])
+            next_payment = interest_date[0]
+            if total_amount_paid == total_amount:
+                print("successfully repaid loan")
+                cursor.execute('update loan set status = "completed" where userid = {}'.format(current_user_global[0]))
+            else:
+                if current_user_global[3] < interest_per_month:
+                    print('insuffecent balance for an interest of {}'.format(interest_per_month))
+                    print("kindly deposit the amount")
+                    deposit()
+                else:
+                    current_balance = current_balance - interest_per_month
+                    total_paid = total_amount_paid +interest_per_month
+                    balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
+                                                                                                 current_user_global[0])
+                    cursor.execute(balance_update)
+                    cursor.execute('update loan set total_paid = {} where userid = {}'.format(total_paid,current_user_global[0]))
+                    current_date_time = currenttime()
+                    current_date = current_date_time[0]
+                    current_time = current_date_time[1]
+                    trans_log = (
+                        current_user_global[0], '{}'.format(['Loan', 'DEBIT ', interest_per_month, current_balance]),
+                        current_date, current_time)
+                    insert = 'insert into trans values{}'.format(trans_log)
+                    cursor.execute(insert)
+                    database.commit()
+                    print('loan repayment of {} is succesfully completed '.format(next_payment))
+                    interest_date = interest_date.pop[0]
+                    interest_date_string = '{}'.format(interest_date)
+                    cursor.execute(
+                        'update loan set interest_date = {} where userid = {}'.format(interest_date_string, current_user_global[0]))
 
 
 def showtransaction():
@@ -377,6 +420,10 @@ def transaction():
     return current_user_global
 
 
+def admin_login():
+    pass
+
+
 def currenttime():
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
 
@@ -414,17 +461,20 @@ print("___________WELCOME TO THE BANK__________")
 print("What Would You Like to Do ?")
 print("1)Login")
 print("2)Create Account")
+print("3)admin account")
 ask_login_signup = int(input("Enter an Option : "))
 
 if ask_login_signup == 1:
     current_user_global = login()
     loan_check_login()
-else:
+elif ask_login_signup == 2:
     createaccount()
     current_user_global = login()
+elif ask_login_signup == 3:
+    admin_login()
 
 
 database.close()
-#TODO : loan repayment
+
 #TODO : admin account
 #TODO :add exit option on show transaction
