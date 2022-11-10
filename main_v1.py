@@ -11,7 +11,7 @@ transactionPage = 1
 
 def login():
     userid = int(input("enter your userid :"))
-    password = input("enter your password: ")
+    password = input("enter your password:")
 
     pin_selector_database = "SELECT * from users where userid = {}".format(userid)
     cursor.execute(pin_selector_database)
@@ -470,6 +470,7 @@ if ask_login_signup == 1:
 elif ask_login_signup == 2:
     createaccount()
     current_user_global = login()
+    loginscreen()
 elif ask_login_signup == 3:
     admin_login()
 
