@@ -421,8 +421,54 @@ def transaction():
 
 
 def admin_login():
-    pass
+    userid = input('enter admin account userid    : ')
+    password1 = input("enter admin account password one : ")
+    password2 = input("enter admin account password two : ")
+    pin_selector_database = "SELECT * from admin "
+    cursor.execute(pin_selector_database)
+    current_user_temp_tuple = cursor.fetchone()
+    current_user_temp_list = list(current_user_temp_tuple)
+    current_user_temp_list[1] = str(decodeStr(current_user_temp_list[1]))
+    current_user_temp_list[2] = str(decodeStr(current_user_temp_list[2]))
+    current_user_temp_list[0] = str(decodeStr(current_user_temp_list[0]))
+    if userid == current_user_temp_list[0]:
+        if current_user_temp_list[1] == password1 and current_user_temp_list[2] == password2:
+            print('successfully logged into the account')
+        else:
+            print('any one of the entered password is incorrect\n please try again')
+            admin_login()
+    else:
+        print('userid not found\nplease try again')
+        admin_login()
 
+
+def admin_logged_screen():
+    while True:
+        print('*' * 20)
+        print("Please Select an Option Below : ")
+        print("account info      (1)")
+        print("user transaction  (2)")
+        print("Exit              (3)")
+        option = int(input('enter you option : '))
+        if option == 1:
+            account_info()
+        elif option == 3:
+            break
+        else:
+            print('enter a valid option')
+
+
+def account_info():
+    user = int(input("Enter the userid : "))
+    cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
+    data  = cursor.fetchone()
+    print('*' * 20)
+    print("________main details_____")
+    print("userid = {}".format(data[0]))
+    print("name = {}".format(data[1]))
+    print('current balance = {}'.format(data[2]))
+    print('*' * 20)
+    print('_________loan details_______')
 
 def currenttime():
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
@@ -473,9 +519,9 @@ elif ask_login_signup == 2:
     loginscreen()
 elif ask_login_signup == 3:
     admin_login()
+    admin_logged_screen()
 
 
 database.close()
 
-#TODO : admin account
-#TODO :add exit option on show transaction
+
