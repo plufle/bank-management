@@ -122,8 +122,9 @@ def requestloan():
             total_paid = 0
             status = 'ongoing'
             insert = (
-            current_user_global[0], loan_amt, total_payment, loan_date, interst_per_month, '{}'.format(interest_dates),
-            total_paid, status)
+                current_user_global[0], loan_amt, total_payment, loan_date, interst_per_month,
+                '{}'.format(interest_dates),
+                total_paid, status)
             insert_statement = "insert into loan values{}".format(insert)
             cursor.execute(insert_statement)
             current_balance = current_user_global[3] + loan_amt
@@ -166,6 +167,7 @@ def loan_check():
     else:
         return False
 
+
 def loan_check_login():
     global current_user_global
     cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
@@ -183,13 +185,15 @@ def loan_check_login():
         interest_per_month = loan_details[4]
         if total_amount >= total_amount_paid:
             if current_date < next_payment:
-                print("Your next loan payment due is on {0} for a payment of {1}".format(next_payment,interest_per_month))
+                print("Your next loan payment due is on {0} for a payment of {1}".format(next_payment,
+                                                                                         interest_per_month))
                 loginscreen()
             else:
                 print("Pay your loan due to continue using the bank")
                 loanrepayment()
         else:
             loginscreen()
+
 
 def loandetails():
     while True:
@@ -227,6 +231,7 @@ def loandetails():
             print('______________________________' * 3)
             break
 
+
 def loan_check_admin(x):
     cursor.execute('select * from users where userid = {}'.format(x))
     current_user_global = cursor.fetchone()
@@ -237,10 +242,11 @@ def loan_check_admin(x):
     else:
         return False
 
+
 def loandetails_admin(x):
     while True:
         cursor.execute('select * from users where userid = {}'.format(x))
-        current_user_global=cursor.fetchone()
+        current_user_global = cursor.fetchone()
         if loan_check_admin(current_user_global[0]):
             print("loan : no loan found")
         else:
@@ -270,6 +276,8 @@ def loandetails_admin(x):
             print(staus)
             print('______________________________' * 3)
             break
+
+
 def loanrepayment():
     global current_user_global
     while True:
@@ -298,11 +306,12 @@ def loanrepayment():
                 else:
                     current_balance = current_user_global[3]
                     current_balance = current_balance - interest_per_month
-                    total_paid = total_amount_paid +interest_per_month
+                    total_paid = total_amount_paid + interest_per_month
                     balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
                                                                                                  current_user_global[0])
                     cursor.execute(balance_update)
-                    cursor.execute('update loan set total_paid = {} where userid = {}'.format(total_paid,current_user_global[0]))
+                    cursor.execute(
+                        'update loan set total_paid = {} where userid = {}'.format(total_paid, current_user_global[0]))
                     current_date_time = currenttime()
                     current_date = current_date_time[0]
                     current_time = current_date_time[1]
@@ -316,8 +325,10 @@ def loanrepayment():
                     interest_date.remove(current_date)
                     interest_date_string = '{}'.format(interest_date)
                     cursor.execute(
-                        'update loan set interest_date = {} where userid = {}'.format(interest_date_string, current_user_global[0]))
+                        'update loan set interest_date = {} where userid = {}'.format(interest_date_string,
+                                                                                      current_user_global[0]))
                     database.commit()
+
 
 def showtransaction():
     global current_user_global
@@ -504,10 +515,11 @@ def admin_logged_screen():
         else:
             print('enter a valid option')
 
+
 def trans_admin():
     user = int(input("Enter the userid : "))
     cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
-    current_user_global= cursor.fetchone()
+    current_user_global = cursor.fetchone()
     current_userid = current_user_global[0]
     trans_fetch = 'select alld,date,time from trans where userid = {} order by date(date)desc,time desc'.format(
         current_userid)
@@ -553,11 +565,13 @@ def trans_admin():
                             print("No Transactions Left")
                             break
                 break
+
+
 def account_info():
     while True:
         user = int(input("Enter the userid : "))
         cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
-        data  = cursor.fetchone()
+        data = cursor.fetchone()
         print('*' * 20)
         print("________main details_____")
         print("userid = {}".format(data[0]))
@@ -567,6 +581,7 @@ def account_info():
         print('_________loan details_______')
         loandetails_admin(user)
         break
+
 
 def currenttime():
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
@@ -619,7 +634,4 @@ elif ask_login_signup == 3:
     admin_login()
     admin_logged_screen()
 
-
 database.close()
-
-
