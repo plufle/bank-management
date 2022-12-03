@@ -176,6 +176,7 @@ def loan_check_login():
         total_amount = loan_details[2]
         total_amount_paid = loan_details[6]
         interest_date = eval(loan_details[5])
+        print(interest_date)
         next_payment = interest_date[0]
         current_date_list = currenttime()
         current_date = current_date_list[0]
@@ -226,7 +227,49 @@ def loandetails():
             print('______________________________' * 3)
             break
 
+def loan_check_admin(x):
+    cursor.execute('select * from users where userid = {}'.format(x))
+    current_user_global = cursor.fetchone()
+    cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+    loan_details = cursor.fetchone()
+    if loan_details == None:
+        return True
+    else:
+        return False
 
+def loandetails_admin(x):
+    while True:
+        cursor.execute('select * from users where userid = {}'.format(x))
+        current_user_global=cursor.fetchone()
+        if loan_check_admin(current_user_global[0]):
+            print("loan : no loan found")
+        else:
+            cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
+            loan_details = list(cursor.fetchone())
+            loan_amt = loan_details[1]
+            total_amount = loan_details[2]
+            loan_date = loan_details[3]
+            interest_per_month = loan_details[4]
+            interest_date = eval(loan_details[5])
+            next_payment = interest_date[0]
+            total_amount_paid = loan_details[6]
+            if loan_details[7] == 'ongoing':
+                staus = 'Loan amount not fully paid'
+            else:
+                staus = 'Loan amount fully paid'
+            print('______________________________' * 3)
+            print('                                       loan details')
+            print('______________________________' * 3)
+            print("Loan amount received            : ", loan_amt)
+            print("Total amount including interest : ", total_amount)
+            print("Starting date of loan           : ", loan_date)
+            print("Interest per month              : ", interest_per_month)
+            print("Next payment date               : ", next_payment)
+            print("Total amount paid               : ", total_amount_paid)
+            print()
+            print(staus)
+            print('______________________________' * 3)
+            break
 def loanrepayment():
     global current_user_global
     while True:
@@ -242,6 +285,7 @@ def loanrepayment():
             total_amount = loan_details[2]
             interest_per_month = loan_details[4]
             interest_date = eval(loan_details[5])
+            print(interest_date)
             next_payment = interest_date[0]
             if total_amount_paid == total_amount:
                 print("successfully repaid loan")
@@ -252,6 +296,7 @@ def loanrepayment():
                     print("kindly deposit the amount")
                     deposit()
                 else:
+                    current_balance = current_user_global[3]
                     current_balance = current_balance - interest_per_month
                     total_paid = total_amount_paid +interest_per_month
                     balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
@@ -268,11 +313,11 @@ def loanrepayment():
                     cursor.execute(insert)
                     database.commit()
                     print('loan repayment of {} is succesfully completed '.format(next_payment))
-                    interest_date = interest_date.pop[0]
+                    interest_date.remove(current_date)
                     interest_date_string = '{}'.format(interest_date)
                     cursor.execute(
                         'update loan set interest_date = {} where userid = {}'.format(interest_date_string, current_user_global[0]))
-
+                    database.commit()
 
 def showtransaction():
     global current_user_global
@@ -452,23 +497,76 @@ def admin_logged_screen():
         option = int(input('enter you option : '))
         if option == 1:
             account_info()
+        elif option == 2:
+            trans_admin()
         elif option == 3:
             break
         else:
             print('enter a valid option')
 
-
-def account_info():
+def trans_admin():
     user = int(input("Enter the userid : "))
     cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
-    data  = cursor.fetchone()
-    print('*' * 20)
-    print("________main details_____")
-    print("userid = {}".format(data[0]))
-    print("name = {}".format(data[1]))
-    print('current balance = {}'.format(data[2]))
-    print('*' * 20)
-    print('_________loan details_______')
+    current_user_global= cursor.fetchone()
+    current_userid = current_user_global[0]
+    trans_fetch = 'select alld,date,time from trans where userid = {} order by date(date)desc,time desc'.format(
+        current_userid)
+    cursor.execute(trans_fetch)
+    while True:
+        all_trans = cursor.fetchall()
+        if all_trans is None:
+            break
+        else:
+            show_trans = int(input("press 1 to show transaction : "))
+            if show_trans == 1:
+                print('{:<10s}{:>4s}{:>15s}{:>25s}{:>14s}{:>22}'.format('FROM/TO', "CREDIT/DEBIT", 'AMOUNT',
+                                                                        'CURRENT BALANCE', 'DATE', 'TIME'))
+                transactionPage = 1
+                while True:
+                    if (len(all_trans) >= transactionPage * 10):
+                        for i in range((transactionPage - 1) * 10, transactionPage * 10):
+                            data = all_trans[i]
+                            a = eval(data[0])
+                            print('{:<10s}{:>4s}{:>20s}{:>22s}{:>22s}{:>22}'.format(str(a[0]), str(a[1]), str(a[2]),
+                                                                                    str(a[3]), str(data[1]),
+                                                                                    str(data[2])))
+                            # print(all_trans[i])
+                        askTransactionPageContinue = str(
+                            input("Do you want to get Page {0} of Transactions? (y/n) : ".format(transactionPage + 1)))
+                        if (askTransactionPageContinue == "y"):
+                            transactionPage = transactionPage + 1
+                            continue
+                        else:
+                            break
+                    else:
+                        finaLoopNum = (transactionPage * 10) - len(all_trans)
+                        if (finaLoopNum != 0):
+                            for i in range((transactionPage - 1) * 10,
+                                           ((transactionPage - 1) * 10) + (10 - finaLoopNum)):
+                                data = all_trans[i]
+                                a = eval(data[0])
+                                print('{:<10s}{:>4s}{:>20s}{:>22s}{:>22s}{:>22}'.format(str(a[0]), str(a[1]), str(a[2]),
+                                                                                        str(a[3]), str(data[1]),
+                                                                                        str(data[2])))
+                            break
+                        else:
+                            print("No Transactions Left")
+                            break
+                break
+def account_info():
+    while True:
+        user = int(input("Enter the userid : "))
+        cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
+        data  = cursor.fetchone()
+        print('*' * 20)
+        print("________main details_____")
+        print("userid = {}".format(data[0]))
+        print("name = {}".format(data[1]))
+        print('current balance = {}'.format(data[2]))
+        print('*' * 20)
+        print('_________loan details_______')
+        loandetails_admin(user)
+        break
 
 def currenttime():
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
