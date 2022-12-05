@@ -19,7 +19,7 @@ def login():
     current_user_temp_list = list(current_user_temp_tuple)
     current_user_temp_list[2] = str(decodeStr(current_user_temp_list[2]))
     if current_user_temp_list[2] == password:
-        print('successfully logined to the account')
+        print('successfully logged to the account')
     else:
         print('entered password is incorrect\n please try again')
         login()
@@ -41,7 +41,7 @@ def createaccount():
         insertstr = "insert into users values('{0}','{1}','{2}','{3}')".format(userid, name, pin_encoded, balance)
         cursor.execute(insertstr)
         database.commit()
-        print("account sucessfully created :-")
+        print("account successfully created :-")
         print("name    = {}".format(name))
         print("userid  = {}".format(userid))
         print("pin     = {}".format(pin))
@@ -52,7 +52,7 @@ def loginscreen():
     global current_user_global
     while True:
         print('*' * 20)
-        print('LOGINED AS {}'.format(current_user_global[1]))
+        print('LOGGED AS {}'.format(current_user_global[1]))
         print("Please Select an Option Below : ")
         print("Transaction      (1)")
         print("Deposit          (2)")
@@ -139,7 +139,6 @@ def requestloan():
             cursor.execute(trans_log_statement)
             database.commit()
 
-
         else:
             print("Loan Declined\nCredit Too Low")
 
@@ -162,7 +161,7 @@ def loan_check():
     global current_user_global
     cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
     loan_details = cursor.fetchone()
-    if loan_details == None:
+    if loan_details is None:
         return True
     else:
         return False
@@ -172,7 +171,7 @@ def loan_check_login():
     global current_user_global
     cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
     loan_details = cursor.fetchone()
-    if loan_details == None:
+    if loan_details is None:
         loginscreen()
     else:
         total_amount = loan_details[2]
@@ -199,7 +198,7 @@ def loandetails():
     while True:
         if loan_check():
             print('______________________________' * 3)
-            print('You dont have any ongoing loans\n if you want one try appyling for it')
+            print('You dont have any ongoing loans\n if you want one try applying for it')
             print('______________________________' * 3)
             break
         else:
@@ -214,9 +213,9 @@ def loandetails():
             next_payment = interest_date[0]
             total_amount_paid = loan_details[6]
             if loan_details[7] == 'ongoing':
-                staus = 'Loan amount not fully paid'
+                status = 'Loan amount not fully paid'
             else:
-                staus = 'Loan amount fully paid'
+                status = 'Loan amount fully paid'
             print('______________________________' * 3)
             print('                                       loan details')
             print('______________________________' * 3)
@@ -227,7 +226,7 @@ def loandetails():
             print("Next payment date               : ", next_payment)
             print("Total amount paid               : ", total_amount_paid)
             print()
-            print(staus)
+            print(status)
             print('______________________________' * 3)
             break
 
@@ -260,9 +259,9 @@ def loandetails_admin(x):
             next_payment = interest_date[0]
             total_amount_paid = loan_details[6]
             if loan_details[7] == 'ongoing':
-                staus = 'Loan amount not fully paid'
+                status = 'Loan amount not fully paid'
             else:
-                staus = 'Loan amount fully paid'
+                status = 'Loan amount fully paid'
             print('______________________________' * 3)
             print('                                       loan details')
             print('______________________________' * 3)
@@ -273,7 +272,7 @@ def loandetails_admin(x):
             print("Next payment date               : ", next_payment)
             print("Total amount paid               : ", total_amount_paid)
             print()
-            print(staus)
+            print(status)
             print('______________________________' * 3)
             break
 
@@ -300,7 +299,7 @@ def loanrepayment():
                 cursor.execute('update loan set status = "completed" where userid = {}'.format(current_user_global[0]))
             else:
                 if current_user_global[3] < interest_per_month:
-                    print('insuffecent balance for an interest of {}'.format(interest_per_month))
+                    print('insufficient balance for an interest of {}'.format(interest_per_month))
                     print("kindly deposit the amount")
                     deposit()
                 else:
@@ -321,7 +320,7 @@ def loanrepayment():
                     insert = 'insert into trans values{}'.format(trans_log)
                     cursor.execute(insert)
                     database.commit()
-                    print('loan repayment of {} is succesfully completed '.format(next_payment))
+                    print('loan repayment of {} is successfully completed '.format(next_payment))
                     interest_date.remove(current_date)
                     interest_date_string = '{}'.format(interest_date)
                     cursor.execute(
@@ -445,7 +444,8 @@ def transaction():
     try:
         if amount > current_user_global[3]:
             print(
-                "The amount you wish to send is greater than\n your current balance\n so try deposting the money to proceed")
+                "The amount you wish to send is greater than\n your current balance\n so try deporting the money to "
+                "proceed")
     except:
         loginscreen()
     to_person_before_balance = to_person[3]
