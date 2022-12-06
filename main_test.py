@@ -6,6 +6,7 @@ from cryptography.fernet import Fernet
 import datetime
 import pytz
 import sys
+import customtkinter
 from datetime import date, timedelta
 import main_passwords
 def pass_():
@@ -43,63 +44,65 @@ def logged_screen():
 
 
 def login_screen():
+    customtkinter.set_appearance_mode("dark")
+    customtkinter.set_default_color_theme("dark-blue")
     global login_window
-    login_window = Tk()
+    login_window = customtkinter.CTk()
     login_window.geometry('800x524')
     login_window.title('Login')
 
-    welcome = Label(login_window, text="                          Welcome to Online Bank                     ",
-                    font=('Arial Bold', 25))
+    welcome = customtkinter.CTkLabel(login_window, text="                             Welcome to Online Bank"
+                    , text_font=('sans-serif',25))
     welcome.grid(column=0, row=0, columnspan=6)
 
-    spaces = Label(login_window, text="           ", font=('Arial Bold', 22))
+    spaces = customtkinter.CTkLabel(login_window, text="           " )
     spaces.grid(column=0, row=1)
 
-    welcome = Label(login_window, text="   Login   ", font=('Arial Bold', 20))
+    welcome = customtkinter.CTkLabel(login_window, text="                Login   " ,text_font=('sans-serif',21))
     welcome.grid(column=1, row=1, columnspan=2)
 
-    spaces = Label(login_window, text="             ", font=('Arial Bold', 20))
+    spaces = customtkinter.CTkLabel(login_window, text="             ")
     spaces.grid(column=0, row=1)
 
-    userid_label = Label(login_window, text="   User ID   ", font=('Arial Bold', 15))
+    userid_label = customtkinter.CTkLabel(login_window, text="   User ID   ",text_font=('sans-serif',20))
     userid_label.grid(column=1, row=3)
 
-    userid_e = Entry(login_window, borderwidth=10, font=('Arial Bold', 10))
+    userid_e = Entry(login_window, borderwidth=10)
     userid_e.grid(column=2, row=3)
 
-    spaces = Label(login_window, text="             ", font=('Arial Bold', 20))
+    spaces = customtkinter.CTkLabel(login_window, text="             ")
     spaces.grid(column=0, row=4)
 
-    pass_label = Label(login_window, text="Password   ", font=('Arial Bold', 15))
+    pass_label = customtkinter.CTkLabel(login_window, text="Password   ",text_font=('sans-serif',20))
     pass_label.grid(column=1, row=4)
 
-    pass_e = Entry(login_window, borderwidth=10, font=('Arial Bold', 10))
+    pass_e = Entry(login_window, borderwidth=10)
     pass_e.grid(column=2, row=4)
 
-    spaces = Label(login_window, text="             ", font=('Arial Bold', 20))
+    spaces = customtkinter.CTkLabel(login_window, text="             ")
     spaces.grid(column=0, row=5)
-    spaces = Label(login_window, text="             ", font=('Arial Bold', 20))
+    spaces = customtkinter.CTkLabel(login_window, text="             " )
     spaces.grid(column=1, row=5)
 
-    login_button = Button(login_window, text='Login', font=('Arial Bold', 12), bg='light blue', fg='white',
+    login_button = customtkinter.CTkButton(login_window, text='Login',
                           command=lambda: login(userid_e.get(),pass_e.get()))
     login_button.grid(row=5, column=1, columnspan=2)
 
-    spaces = Label(login_window, text="             ", font=('Arial Bold', 20))
+    spaces = customtkinter.CTkLabel(login_window, text="             ")
     spaces.grid(column=0, row=6)
 
-    frame_admin = LabelFrame(login_window, text='Administrator', font=('Arial Bold', 10))
+    frame_admin = customtkinter.CTkFrame(login_window)
     frame_admin.grid(column=1, row=6)
 
-    login_button_admin = Button(frame_admin, text='Login', font=('Arial Bold', 12), bg='#FF7F50', fg='white',
+    login_button_admin = customtkinter.CTkButton(frame_admin, text='Login',
                                 command=pass_e)
-    login_button_admin.grid(row=0, column=0, )
+    login_button_admin.grid(row=0, column=0,)
 
-    frame_new = LabelFrame(login_window, text='New Account', font=('Arial Bold', 10), padx=5, pady=5)
+    frame_new = customtkinter.CTkFrame(login_window)
     frame_new.grid(column=2, row=6, columnspan=2)
 
-    create_btn = Button(frame_new, text='Create new account', font=('Arial Bold', 12), bg='#00008B', fg='white', padx=7,
-                        pady=3, command=pass_e)
+    create_btn = customtkinter.CTkButton(frame_new, text='Create new account',
+                         command=pass_e)
     create_btn.grid(row=5, column=0)
 
     login_window.mainloop()
