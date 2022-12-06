@@ -72,6 +72,9 @@ def loginscreen():
         elif option == 5:
             loan()
         elif option == 6:
+            print("--------------------------------------")
+            print("        SUCCESSFULLY LOGGED OUT                 ")
+            print("--------------------------------------")
             break
         else:
             print("please choose a valid option \n kindly try again")
@@ -248,6 +251,7 @@ def loandetails_admin(x):
         current_user_global = cursor.fetchone()
         if loan_check_admin(current_user_global[0]):
             print("loan : no loan found")
+            break
         else:
             cursor.execute('select * from loan where userid = {}'.format(current_user_global[0]))
             loan_details = list(cursor.fetchone())
@@ -260,6 +264,7 @@ def loandetails_admin(x):
             total_amount_paid = loan_details[6]
             if loan_details[7] == 'ongoing':
                 status = 'Loan amount not fully paid'
+                break
             else:
                 status = 'Loan amount fully paid'
             print('______________________________' * 3)
