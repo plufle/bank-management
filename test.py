@@ -1,87 +1,46 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QStyle, QSlider, QFiledialog
-from PyQt5.QtGui import Qicon, Qpalette
-from PyQt5.Multimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtMultimediaWidgets import QVideoWidget
-from PyQt5.QtCore import Qt, QURL
-import sys
+from tkinter import messagebox
+import mysql.connector as connector
+import customtkinter
+
+customtkinter.set_appearance_mode("dark")
+customtkinter.set_default_color_theme("dark-blue")
+create_account = customtkinter.CTk()
+create_account.geometry('800x524')
+create_account.title('Create Account')
+spaces = customtkinter.CTkLabel(create_account, text=''' ''', text_font=('Roboto Mono', 20))
+spaces.pack()
+welcome = customtkinter.CTkLabel(create_account, text="Create Account", text_font=('Roboto Mono', 28),
+                                 text_color='#d7e3fc')
+welcome.pack(anchor=customtkinter.N)
+
+create_frame = customtkinter.CTkFrame(master=create_account, width=20, height=250, corner_radius=10)
+create_frame.pack(ipady=5, ipadx=10, expand=True)
 
 
-class Window(QWidget):
-    def __init__(self):
-        super().__init__()
+spaces = customtkinter.CTkLabel(create_frame, text=''' ''', text_font=('Roboto Mono', 5))
+spaces.grid(row=1, column=3)
+spaces = customtkinter.CTkLabel(create_frame, text=''' ''', text_font=('Roboto Mono', 5))
+spaces.grid(row=3, column=2)
+spaces = customtkinter.CTkLabel(create_frame, text=''' ''', text_font=('Roboto Mono', 5))
+spaces.grid(row=5, column=2)
 
-        self.setWindowcon(Qicon)
-        self.setWindowtitle("Pyplayer")
-        self.setgeometry(350, 100, 700, 500)
+name_label = customtkinter.CTkLabel(create_frame, text='                 name                 ', text_font=('Roboto Mono', 20))
+name_label.grid(column=1, row=2)
+password_label = customtkinter.CTkLabel(create_frame, text='                 password             ', text_font=('Roboto Mono', 20))
+password_label.grid(column=1, row=3)
+password_confirm_label = customtkinter.CTkLabel(create_frame, text='                 password confirm ', text_font=('Roboto Mono', 20))
+password_confirm_label.grid(column=1, row=4)
 
-        p = self.palette()
-        p.setColor(Qpalette.Window, Qt.red)
-        self.setPalette(p)
+name_entry = customtkinter.CTkEntry(create_frame, text_font=('Roboto Mono', 15), width=150, height=35)
+name_entry.grid(column=2, row=2,pady = 10)
 
-        self.create_player()
+pass_entry = customtkinter.CTkEntry(create_frame, text_font=('Roboto Mono', 15), show='*', width=150, height=35)
+pass_entry.grid(column=2, row=3,pady = 10)
 
+pass_confirm_entry = customtkinter.CTkEntry(create_frame, text_font=('Roboto Mono', 15), show='*', width=150, height=35)
+pass_confirm_entry.grid(column=2, row=4,pady = 10)
 
-def create_player(self):
-    self.mediaPLayer = QMediaPlayer(None, QMediaPlayer.VideoSurface)
+login_button = customtkinter.CTkButton(create_frame, text='create account', text_font=('Roboto Mono', 22))
+login_button.grid(row=5, column=1,columnspan = 10, ipadx=10, ipady=4)
 
-    videowidget = QVideoWidget()
-
-    self.openBtn = QPushbutton('Open VIDEO')
-    self.openBtn.clicked.connect(self.open_file)
-
-    self.playBtn = QPushButton()
-    self.playBtn.setEnabled(False)
-    self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_Mediaplay))
-    self.playBtn.clicked.connect(self.play_video)
-
-    self.slider = QSlider(Qt.Horizontal)
-    self.slider.setRange(0, 0)
-    self.slider.sliderMoved.connect(self.set_position)
-
-    hbox = QHBoxLayout()
-    hbox.setContentsMARGINS(0, 0, 0, 0)
-
-    hbox.addWidget(self.openBtn)
-    hbox.addWidget(self.playbtn)
-    hbox.addWidget(self.slider)
-
-    vbox = QVBoxLayout()
-    vbox.addWidget(videowidget)
-
-    vbox.addLayout(hbox)
-
-    self.mediaPlayer.setVideoOutput(videowidget)
-
-    self.setLayout(vbox)
-
-    self.mediaPlayer.stateChanged.connect(self.mediastate_changed)
-    self.mediaPlayer.positionChanged.connect(self.position_changed)
-    self.mediaplayer.durationChanged.connect(self.duration_changed)
-
-
-def open_file(self):
-    filename, _ = QFiledialog.getOpenFilename(self, "OPEN VIDEO")
-
-    if filename != '':
-        self.mediaPlayer.setMedia(QMediaContent(QURL.fromlocalFile(filename)))
-        self.playBtn.setEnabled(True)
-
-
-def play_video(self):
-    if self.mediaPlayer.state() == QMediaPlayer.PlayingState:
-        self.mediaplayer.pause()
-
-    else:
-        self.mediaPlayer.play()
-
-
-def mediastate_changed(self, state):
-    if self.mediaplayer.state() == QMediaPlayer.PlayingState:
-        self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPause))
-
-    else:
-        self.playBtn.setIcon(self.style().standardIcon(QStyle.SP_MediaPlay))
-
-
-def position_changed(self, position):
-    self.slider.setvalue(position)
+create_account.mainloop()

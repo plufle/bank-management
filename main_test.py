@@ -9,11 +9,13 @@ import sys
 import customtkinter
 from datetime import date, timedelta
 import main_passwords
+
+
 def pass_():
-    pass
+    print('hi')
 
 
-def login(x,y):
+def login(x, y):
     userid = int(x)
     password = y
 
@@ -24,13 +26,13 @@ def login(x,y):
     current_user_temp_list[2] = str(decodeStr(current_user_temp_list[2]))
     if current_user_temp_list[2] == password:
         print('successfully logged to the account')
-        messagebox.showinfo("login","successfully logged in")
+        messagebox.showinfo("login", "successfully logged in")
         login_window.destroy()
         logged_screen()
 
     else:
         print('entered password is incorrect\n please try again')
-        response = messagebox.askquestion('login','password is incorrect...try again')
+        response = messagebox.askquestion('login', 'password is incorrect...try again')
         if response == 'yes':
             login_window.destroy()
             login_screen()
@@ -38,6 +40,7 @@ def login(x,y):
             sys.exit('user closed')
 
     return current_user_temp_list
+
 
 def logged_screen():
     print('GOOD')
@@ -51,59 +54,58 @@ def login_screen():
     login_window.geometry('800x524')
     login_window.title('Login')
 
-    welcome = customtkinter.CTkLabel(login_window, text="                             Welcome to Online Bank"
-                    , text_font=('sans-serif',25))
-    welcome.grid(column=0, row=0, columnspan=6)
+    welcome = customtkinter.CTkLabel(login_window, text="Welcome to Online Bank"
+                                     , text_font=('Roboto Mono', 35), text_color='#d7e3fc')
+    welcome.pack(pady=10)
 
-    spaces = customtkinter.CTkLabel(login_window, text="           " )
-    spaces.grid(column=0, row=1)
+    welcome = customtkinter.CTkLabel(login_window, text='''   Login   ''', text_font=('Roboto Mono', 29),
+                                     text_color='#d7e3fc')
+    welcome.pack()
 
-    welcome = customtkinter.CTkLabel(login_window, text="                Login   " ,text_font=('sans-serif',21))
-    welcome.grid(column=1, row=1, columnspan=2)
+    spaces = customtkinter.CTkLabel(login_window, text=''' ''', text_font=('Roboto Mono', 20))
+    spaces.pack()
 
-    spaces = customtkinter.CTkLabel(login_window, text="             ")
-    spaces.grid(column=0, row=1)
+    main_frame = customtkinter.CTkFrame(login_window)
+    main_frame.pack()
 
-    userid_label = customtkinter.CTkLabel(login_window, text="   User ID   ",text_font=('sans-serif',20))
-    userid_label.grid(column=1, row=3)
+    spaces = customtkinter.CTkLabel(main_frame, text='''     ''', text_font=('Roboto Mono', 20))
+    spaces.grid(row=0, column=0)
+    spaces = customtkinter.CTkLabel(main_frame, text='''      ''', text_font=('Roboto Mono', 20))
+    spaces.grid(row=1, column=3)
+    spaces = customtkinter.CTkLabel(main_frame, text='''      ''', text_font=('Roboto Mono', 5))
+    spaces.grid(row=3, column=2)
+    spaces = customtkinter.CTkLabel(main_frame, text='''      ''', text_font=('Roboto Mono', 5))
+    spaces.grid(row=5, column=2)
 
-    userid_e = Entry(login_window, borderwidth=10)
-    userid_e.grid(column=2, row=3)
+    spaces = customtkinter.CTkLabel(login_window, text=''' ''', text_font=('Roboto Mono', 20))
+    spaces.pack()
 
-    spaces = customtkinter.CTkLabel(login_window, text="             ")
-    spaces.grid(column=0, row=4)
+    userid_label = customtkinter.CTkLabel(main_frame, text="   User ID   ", text_font=('Roboto Mono', 20))
+    userid_label.grid(column=1, row=1)
 
-    pass_label = customtkinter.CTkLabel(login_window, text="Password   ",text_font=('sans-serif',20))
-    pass_label.grid(column=1, row=4)
+    userid_e = customtkinter.CTkEntry(main_frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    userid_e.grid(column=2, row=1, pady=10)
 
-    pass_e = Entry(login_window, borderwidth=10)
-    pass_e.grid(column=2, row=4)
+    pass_label = customtkinter.CTkLabel(main_frame, text="Password   ", text_font=('Roboto Mono', 20))
+    pass_label.grid(column=1, row=2)
 
-    spaces = customtkinter.CTkLabel(login_window, text="             ")
-    spaces.grid(column=0, row=5)
-    spaces = customtkinter.CTkLabel(login_window, text="             " )
-    spaces.grid(column=1, row=5)
+    pass_e = customtkinter.CTkEntry(main_frame, text_font=('Roboto Mono', 15), show='*', width=150, height=35)
+    pass_e.grid(column=2, row=2)
 
-    login_button = customtkinter.CTkButton(login_window, text='Login',
-                          command=lambda: login(userid_e.get(),pass_e.get()))
-    login_button.grid(row=5, column=1, columnspan=2)
+    login_button = customtkinter.CTkButton(main_frame, text='Login', text_font=('Roboto Mono', 25),
+                                           command=lambda: login(userid_e.get(), pass_e.get()))
+    login_button.grid(row=4, column=1, columnspan=2, ipadx=10, ipady=4)
 
-    spaces = customtkinter.CTkLabel(login_window, text="             ")
-    spaces.grid(column=0, row=6)
+    frame_admin = customtkinter.CTkFrame(login_window, border_color='White')
+    frame_admin.pack(ipadx=10, ipady=10)
 
-    frame_admin = customtkinter.CTkFrame(login_window)
-    frame_admin.grid(column=1, row=6)
+    login_button_admin = customtkinter.CTkButton(frame_admin, text='Administrator Login', text_font=('Roboto Mono', 20),
+                                                 command=pass_, fg_color='#9ceaef', text_color='#333')
+    login_button_admin.grid(row=0, column=0, pady=10, padx=20, ipadx=10, ipady=4)
 
-    login_button_admin = customtkinter.CTkButton(frame_admin, text='Login',
-                                command=pass_e)
-    login_button_admin.grid(row=0, column=0,)
-
-    frame_new = customtkinter.CTkFrame(login_window)
-    frame_new.grid(column=2, row=6, columnspan=2)
-
-    create_btn = customtkinter.CTkButton(frame_new, text='Create new account',
-                         command=pass_e)
-    create_btn.grid(row=5, column=0)
+    create_btn = customtkinter.CTkButton(frame_admin, text=' Create new account', text_font=('Roboto Mono', 20),
+                                         command=pass_, fg_color='#ffc2d1', text_color='#333')
+    create_btn.grid(row=1, column=0, pady=10, padx=20, ipadx=10, ipady=4)
 
     login_window.mainloop()
 
