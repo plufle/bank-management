@@ -8,6 +8,7 @@ import main_passwords
 import customtkinter
 from tkinter import messagebox
 import sys
+import tkinter
 
 
 
@@ -85,7 +86,7 @@ def admin_login(x,y,z):
 def admin_logined_screen():
     admin_logined_window = customtkinter.CTk()
     admin_logined_window.geometry('800x524')
-    admin_logined_window.title('Welcome to BANK')
+    admin_logined_window.title('admin account')
 
 
     welcome = customtkinter.CTkLabel(admin_logined_window, text="Admin Login", text_font=('Roboto Mono', 30))
@@ -94,7 +95,7 @@ def admin_logined_screen():
     frame = customtkinter.CTkFrame(admin_logined_window, padx=5, pady=5)
     frame.pack()
 
-    trans_button = customtkinter.CTkButton(frame, text='user info', text_font=('Roboto Mono', 22))
+    trans_button = customtkinter.CTkButton(frame, text='user info', text_font=('Roboto Mono', 22),command=lambda: user_info_screen())
     trans_button.grid(row=2, column=1, pady=20, ipadx=40)
 
     spaces = customtkinter.CTkLabel(frame, text=''' ''', text_font=('Roboto Mono', 1))
@@ -103,7 +104,8 @@ def admin_logined_screen():
     spaces = customtkinter.CTkLabel(frame, text=''' ''', text_font=('Roboto Mono', 1))
     spaces.grid(row=2, column=2, padx=1)
 
-    show_trans_button = customtkinter.CTkButton(frame, text='user transaction', text_font=('Roboto Mono', 22))
+    show_trans_button = customtkinter.CTkButton(frame, text='user transaction', text_font=('Roboto Mono', 22),command=lambda:
+                                                trans_userid())
     show_trans_button.grid(row=5, column=1, pady=20)
 
     exit_button = customtkinter.CTkButton(frame, text='Exit', text_font=('Roboto Mono', 22), command=exit_)  #
@@ -117,10 +119,134 @@ def admin_logined_screen():
     
     
     
+def user_info_screen():
+    global trans_user
+    trans_user = customtkinter.CTk()
+    trans_user.geometry('800x524')
+    trans_user.title('user info')
+
+    welcome = customtkinter.CTkLabel(trans_user, text="User details", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=75)
+
+    frame = customtkinter.CTkFrame(trans_user, padx=10, pady=5, width=200)
+    frame.pack()
+
+    label = customtkinter.CTkLabel(frame, text='userid',
+                                   text_font=('Roboto Mono', 20))
+    label.grid(column=1, row=2, pady=20)
+
+    entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    entry.grid(column=2, row=2, pady=10, padx=40)
+
+    confirm_button = customtkinter.CTkButton(frame, text='confirm', text_font=('Roboto Mono', 22),
+                                             command=lambda: account_info(entry.get()))
+    confirm_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=30)
+    trans_user.mainloop()
+
     
+def account_info(x):
+    user = int(x)
+    cursor.execute('select userid,name,balance from users where userid  = {} '.format(user))
+    data = cursor.fetchone()
+
+    trans_user.destroy()
+    global data_window
+    data_window = customtkinter.CTk()
+    data_window.geometry('800x524')
+    data_window.title('user info')
+    welcome = customtkinter.CTkLabel(data_window, text="User details", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=75)
+
+    frame = customtkinter.CTkFrame(data_window, padx=10, pady=5)
+    frame.pack()
+
+    name_label = customtkinter.CTkLabel(frame, text='name : {} '.format(data[1]),
+                                        text_font=('Roboto Mono', 20))
+    name_label.grid(column=1, row=2,pady=10)
+
+    userid_label = customtkinter.CTkLabel(frame, text='userid: {} '.format(data[0]),
+                                        text_font=('Roboto Mono', 20))
+    userid_label.grid(column=1, row=3, ipadx=20,pady=10)
+
+    balance_label = customtkinter.CTkLabel(frame, text='balance : {} '.format(data[2]),
+                                          text_font=('Roboto Mono', 20))
+    balance_label.grid(column=1, row=4,padx = 20,pady=10)
+
+    login_button = customtkinter.CTkButton(frame, text='continue', text_font=('Roboto Mono', 22),
+                                           command=pre_admin_logged_screen)
+    login_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=10)
+    data_window.mainloop()
     
-    
-    
+def trans_userid():
+    global trans_user
+    trans_user = customtkinter.CTk()
+    trans_user.geometry('800x524')
+    trans_user.title('user info')
+
+    welcome = customtkinter.CTkLabel(trans_user, text="Transaction of user", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=75)
+
+    frame = customtkinter.CTkFrame(trans_user, padx=10, pady=5, width=200)
+    frame.pack()
+
+    label = customtkinter.CTkLabel(frame, text='userid',
+                                   text_font=('Roboto Mono', 20))
+    label.grid(column=1, row=2, pady=20)
+
+    entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    entry.grid(column=2, row=2, pady=10, padx=40)
+
+    confirm_button = customtkinter.CTkButton(frame, text='confirm', text_font=('Roboto Mono', 22),
+                                             command=lambda: admin_show_trans(entry.get()))
+    confirm_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=30)
+    trans_user.mainloop()
+
+def admin_show_trans(x):
+    userid = int(x)
+    trans_fetch = 'select alld,date,time from trans where userid = {} order by date(date)desc,time desc'.format(userid)
+    cursor.execute(trans_fetch)
+    all_trans = cursor.fetchall()
+    trans_user.destroy()
+    app = customtkinter.CTk()
+    app.geometry('1100x524')
+    app.title('tansactions')
+
+    label = customtkinter.CTkLabel(app, text='Tranaction of {}'.format(x), text_font=('Roboto Mono', 22))
+    label.grid(row=0,column = 2,pady =20)
+
+    label = customtkinter.CTkLabel(app, text='{:<10s}{:>4s}{:>15s}{:>25s}{:>14s}{:>22}'.format('FROM/TO', "CREDIT/DEBIT", 'AMOUNT',
+                                                                        'BALANCE', 'DATE', 'TIME')
+                                   , text_font=('Roboto Mono', 16))
+    label.grid(row=2,column = 2,pady =20,)
+
+    textbox = customtkinter.CTkTextbox(app,text_font=('Roboto Mono', 14))
+    textbox.grid(row=4, column=2,ipadx=370,padx = 80)
+
+
+    for i in range(len(all_trans)+1):
+        try:
+            user_temp = all_trans[i]
+            date = user_temp[1]
+            time = user_temp[2]
+            other = eval(user_temp[0])
+            from_to = other[0]
+            info = other[1]
+            amount = other[2]
+            balance = other[3]
+
+            position = f'{i}.0'
+            textbox.insert(position,'{:<24s} {:>6s}{:>24s}{:>27s}{:>28s}{:>22}\n'.format(str(from_to), str(info), str(amount),
+                                                                                    str(balance), str(date),
+                                                                                    str(time)))
+        except:
+            pass
+
+    textbox.configure(state="disabled")
+
+    app.mainloop()
+
+def pre_admin_logged_screen():
+    data_window.destroy()
 def exit_():
     sys.exit()
 def encodeStr(text):
