@@ -14,10 +14,13 @@ import main_passwords
 def pass_():
     print('hi')
 
+
 def login_create():
     login_window.destroy()
-    create_account_f()
-def create_account_f():
+    create_account_main()
+
+
+def create_account_main():
     customtkinter.set_appearance_mode("dark")
     customtkinter.set_default_color_theme("dark-blue")
     global create_account
@@ -61,14 +64,112 @@ def create_account_f():
     pass_confirm_entry.grid(column=2, row=4, pady=10)
 
     login_button = customtkinter.CTkButton(create_frame, text='create account', text_font=('Roboto Mono', 22),
-                                           command=lambda: createaccount(name_entry.get(),pass_entry.get(),
-                                                                          pass_confirm_entry.get()))
+                                           command=lambda: createaccount(name_entry.get(), pass_entry.get(),
+                                                                         pass_confirm_entry.get()))
     login_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4)
 
     create_account.mainloop()
 
 
-def createaccount(x,y,z):
+def transaction(x, y):
+    to_person_input = x
+    amount = int(y)
+    to_person_selector = "SELECT * from users where userid = {}".format(to_person_input)
+    cursor.execute(to_person_selector)
+    to_person = list(cursor.fetchone())
+    try:
+        if amount > current_user_global[3]:
+            response = messagebox.askquestion('transaction', 'current balance less than transaction amount')
+            if response == 'yes':
+                tans_window.destroy()
+                transaction_scrren()
+    except:
+
+        logined_screen()
+
+    to_person_before_balance = to_person[3]
+    to_person_after_balance = to_person_before_balance + amount
+    to_person_balance_update = 'update users set balance = {0} where userid = {1} '.format(to_person_after_balance,
+                                                                                           to_person_input)
+    cursor.execute(to_person_balance_update)
+    current_user_balance = current_user_global[3]
+    current_user_balance = current_user_balance - amount
+    current_user_update = 'update users set balance = {0} where userid = {1} '.format(current_user_balance,
+                                                                                      current_user_global[0])
+    cursor.execute(current_user_update)
+    current_date_time = currenttime()
+    current_date = current_date_time[0]
+    current_time = current_date_time[1]
+    to_trans_log = (
+        to_person_input, '{}'.format([current_user_global[0], 'CREDIT', amount, to_person_after_balance]), current_date,
+        current_time)
+    from_trans_log = (
+        current_user_global[0], '{}'.format([to_person_input, 'DEBIT ', amount, current_user_balance]), current_date,
+        current_time)
+    insert_1 = 'insert into trans values{}'.format(to_trans_log)
+    insert_2 = 'insert into trans values{}'.format(from_trans_log)
+    cursor.execute(insert_1)
+    cursor.execute(insert_2)
+    database.commit()
+    current_user_global[3] = current_user_balance
+    after_transaction(to_person_input, amount)
+
+
+def after_transaction(x, y):
+    window = customtkinter.CTkToplevel()
+    window.geometry("500x300")
+    window.title('Transaction')
+    spaces = customtkinter.CTkLabel(window, text=''' ''', text_font=('Roboto Mono', 20))
+    spaces.pack()
+
+    welcome = customtkinter.CTkLabel(window, text="Transaction successful", text_font=('Roboto Mono', 24),
+                                     text_color='#d7e3fc')
+    welcome.pack(anchor=customtkinter.N, pady=20)
+
+    label = customtkinter.CTkLabel(window, text="Amount {0} paid to user {1}".format(y, x),
+                                   text_font=('Roboto Mono', 18))
+    label.pack()
+
+    login_button = customtkinter.CTkButton(window, text='continue', text_font=('Roboto Mono', 12),
+                                           command=pre_login_screen)
+    login_button.pack(ipadx=10, ipady=4, pady=20)
+
+    window.mainloop()
+
+
+def transaction_scrren():
+    global tans_window
+    tans_window = customtkinter.CTk()
+    tans_window.geometry('800x524')
+    tans_window.title('Transaction')
+
+    welcome = customtkinter.CTkLabel(tans_window, text="TRANSACTION", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=30)
+
+    frame = customtkinter.CTkFrame(tans_window, padx=10, pady=5, width=200)
+    frame.pack()
+
+    name_label = customtkinter.CTkLabel(frame, text='userid',
+                                        text_font=('Roboto Mono', 20))
+    name_label.grid(column=1, row=2, pady=20)
+    password_label = customtkinter.CTkLabel(frame, text='amount',
+                                            text_font=('Roboto Mono', 20))
+    password_label.grid(column=1, row=3)
+
+    name_entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    name_entry.grid(column=2, row=2, pady=5, padx=30)
+
+    pass_entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    pass_entry.grid(column=2, row=3, pady=10)
+
+    confirm_button = customtkinter.CTkButton(frame, text='confirm', text_font=('Roboto Mono', 22),
+                                             command=lambda: transaction(name_entry.get(), pass_entry.get()))
+
+    confirm_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=30)
+    tans_window.mainloop()
+
+
+def createaccount(x, y, z):
     name = x
     userid = random.randint(10002, 100000)
     pin = y
@@ -77,7 +178,7 @@ def createaccount(x,y,z):
         response = messagebox.askquestion('create account', 'the two passwords does not match,try again')
         if response == 'yes':
             create_account.destroy()
-            create_account_f()
+            create_account_main()
         else:
             sys.exit('user closed')
 
@@ -113,16 +214,23 @@ def createaccount(x,y,z):
                                               text_font=('Roboto Mono', 20))
         userid_label.grid(column=1, row=3)
 
-        login_button = customtkinter.CTkButton(frame, text='Login', text_font=('Roboto Mono', 22),command= pre_login_screen)
+        login_button = customtkinter.CTkButton(frame, text='Login', text_font=('Roboto Mono', 22),
+                                               command=pre_login_screen_two)
         login_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=10)
 
         window.mainloop()
 
 
-
 def pre_login_screen():
     create_account.destroy()
     login_screen()
+
+
+def pre_login_screen_two():
+    tans_window.destroy()
+    logined_screen()
+
+
 def login(x, y):
     userid = int(x)
     password = y
@@ -138,7 +246,7 @@ def login(x, y):
         print('successfully logged to the account')
         messagebox.showinfo("login", "successfully logged in")
         login_window.destroy()
-        logged_screen()
+        logined_screen()
 
     else:
         print('entered password is incorrect\n please try again')
@@ -148,12 +256,6 @@ def login(x, y):
             login_screen()
         else:
             sys.exit('user closed')
-
-
-
-
-def logged_screen():
-    print('GOOD')
 
 
 def login_screen():
@@ -220,6 +322,46 @@ def login_screen():
     login_window.mainloop()
 
 
+def logined_screen():
+    logined_window = customtkinter.CTk()
+    logined_window.geometry('800x524')
+    logined_window.title('Welcome to BANK')
+    username = current_user_global[1]
+
+    welcome = customtkinter.CTkLabel(logined_window, text=f"logged in as {username}", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=20)
+
+    frame = customtkinter.CTkFrame(logined_window, padx=5, pady=5)
+    frame.pack()
+
+    trans_button = customtkinter.CTkButton(frame, text='Transaction', text_font=('Roboto Mono', 22), command=
+    lambda: transaction_scrren())  #
+    trans_button.grid(row=2, column=1, pady=20, ipadx=32)
+
+    spaces = customtkinter.CTkLabel(frame, text=''' ''', text_font=('Roboto Mono', 1))
+    spaces.grid(row=2, column=0, padx=1)
+
+    spaces = customtkinter.CTkLabel(frame, text=''' ''', text_font=('Roboto Mono', 1))
+    spaces.grid(row=2, column=2, padx=1)
+
+    deposit_button = customtkinter.CTkButton(frame, text='Deposit', text_font=('Roboto Mono', 22),
+                                             command=pass_)  #
+    deposit_button.grid(row=3, column=1, pady=20, ipadx=46)
+
+    withdrawal_button = customtkinter.CTkButton(frame, text='Withdrawal', text_font=('Roboto Mono', 22),
+                                                command=pass_)  #
+    withdrawal_button.grid(row=4, column=1, pady=20, ipadx=36)
+
+    show_trans_button = customtkinter.CTkButton(frame, text='Show transaction', text_font=('Roboto Mono', 22),
+                                                command=pass_)  #
+    show_trans_button.grid(row=5, column=1, pady=20)
+
+    exit_button = customtkinter.CTkButton(frame, text='Exit', text_font=('Roboto Mono', 22), command=exit_)  #
+    exit_button.grid(row=7, column=1, pady=20, ipadx=48)
+
+    logined_window.mainloop()
+
+
 def currenttime():
     current_time = datetime.datetime.now(pytz.timezone('Asia/Kolkata'))
 
@@ -227,6 +369,10 @@ def currenttime():
     t_string = current_time.strftime("%H:%M:%S")
     time = [d_string, t_string]
     return time
+
+
+def exit_():
+    sys.exit('user close')
 
 
 def encodeStr(text):
