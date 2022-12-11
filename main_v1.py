@@ -391,9 +391,6 @@ def deposit():
     print("--------------------------------------")
     print()
     dep_amt = int(input("enter the amount to be deposited : "))
-    if dep_amt < 100:
-        print("please enter a higher value")
-        deposit()
     current_balance = current_user_global[3]
     current_balance = current_balance + dep_amt
     balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,

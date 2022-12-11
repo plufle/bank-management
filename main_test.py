@@ -347,7 +347,7 @@ def logined_screen():
     spaces.grid(row=2, column=2, padx=1)
 
     deposit_button = customtkinter.CTkButton(frame, text='Deposit', text_font=('Roboto Mono', 22),
-                                             command=pass_)  #
+                                             command=lambda: deposit_screen())  #
     deposit_button.grid(row=3, column=1, pady=20, ipadx=46)
 
     withdrawal_button = customtkinter.CTkButton(frame, text='Withdrawal', text_font=('Roboto Mono', 22),
@@ -372,6 +372,70 @@ def currenttime():
     time = [d_string, t_string]
     return time
 
+def deposit_screen():
+    global deposit_window
+    deposit_window = customtkinter.CTk()
+    deposit_window.geometry('800x524')
+    deposit_window.title('Transaction')
+
+    welcome = customtkinter.CTkLabel(deposit_window, text="DEPOSIT", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=75)
+
+    frame = customtkinter.CTkFrame(deposit_window, padx=10, pady=5, width=200)
+    frame.pack()
+
+    label = customtkinter.CTkLabel(frame, text='amount',
+                                        text_font=('Roboto Mono', 20))
+    label.grid(column=1, row=2, pady=20)
+
+    entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    entry.grid(column=2, row=2, pady=10,padx = 40)
+
+    confirm_button = customtkinter.CTkButton(frame, text='confirm', text_font=('Roboto Mono', 22),command=lambda: deposit(entry.get()))
+    confirm_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=30)
+    deposit_window.mainloop()
+
+def deposit(x):
+    dep_amt = int(x)
+    current_balance = current_user_global[3]
+    current_balance = current_balance + dep_amt
+    balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
+                                                                                 current_user_global[0])
+    cursor.execute(balance_update)
+    current_date_time = currenttime()
+    current_date = current_date_time[0]
+    current_time = current_date_time[1]
+    trans_log = (
+        current_user_global[0], '{}'.format(['self', 'CREDIT', dep_amt, current_balance]), current_date, current_time)
+    insert = 'insert into trans values{}'.format(trans_log)
+    cursor.execute(insert)
+    database.commit()
+    current_user_global[3] = current_balance
+    global deposit_window_top
+    deposit_window_top = customtkinter.CTkToplevel()
+    deposit_window_top.geometry("500x300")
+    deposit_window_top.title('Transaction')
+    spaces = customtkinter.CTkLabel(deposit_window_top, text=''' ''', text_font=('Roboto Mono', 20))
+    spaces.pack()
+
+    welcome = customtkinter.CTkLabel(deposit_window_top, text="Deposit successful", text_font=('Roboto Mono', 24),
+                                     text_color='#d7e3fc')
+    welcome.pack(anchor=customtkinter.N, pady=20)
+
+    label = customtkinter.CTkLabel(deposit_window_top, text="Amount deposited ={} ".format(x),
+                                   text_font=('Roboto Mono', 18))
+    label.pack()
+
+    login_button = customtkinter.CTkButton(deposit_window_top, text='continue', text_font=('Roboto Mono', 12),command=after_deposit)
+
+    login_button.pack(ipadx=10, ipady=4, pady=20)
+
+    deposit_window_top.mainloop()
+
+
+def after_deposit():
+    deposit_window.destroy()
+    deposit_window_top.destroy()
 
 def exit_():
     sys.exit('user close')
