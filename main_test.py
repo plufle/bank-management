@@ -116,25 +116,26 @@ def transaction(x, y):
 
 
 def after_transaction(x, y):
-    window = customtkinter.CTkToplevel()
-    window.geometry("500x300")
-    window.title('Transaction')
-    spaces = customtkinter.CTkLabel(window, text=''' ''', text_font=('Roboto Mono', 20))
+    global window_trans
+    window_trans = customtkinter.CTkToplevel()
+    window_trans.geometry("500x300")
+    window_trans.title('Transaction')
+    spaces = customtkinter.CTkLabel(window_trans, text=''' ''', text_font=('Roboto Mono', 20))
     spaces.pack()
 
-    welcome = customtkinter.CTkLabel(window, text="Transaction successful", text_font=('Roboto Mono', 24),
+    welcome = customtkinter.CTkLabel(window_trans, text="Transaction successful", text_font=('Roboto Mono', 24),
                                      text_color='#d7e3fc')
     welcome.pack(anchor=customtkinter.N, pady=20)
 
-    label = customtkinter.CTkLabel(window, text="Amount {0} paid to user {1}".format(y, x),
+    label = customtkinter.CTkLabel(window_trans, text="Amount {0} paid to user {1}".format(y, x),
                                    text_font=('Roboto Mono', 18))
     label.pack()
 
-    login_button = customtkinter.CTkButton(window, text='continue', text_font=('Roboto Mono', 12),
-                                           command=pre_login_screen)
+    login_button = customtkinter.CTkButton(window_trans, text='continue', text_font=('Roboto Mono', 12),
+                                           command=pre_login_screen_two)
     login_button.pack(ipadx=10, ipady=4, pady=20)
 
-    window.mainloop()
+    window_trans.mainloop()
 
 
 def transaction_scrren():
@@ -215,7 +216,7 @@ def createaccount(x, y, z):
         userid_label.grid(column=1, row=3)
 
         login_button = customtkinter.CTkButton(frame, text='Login', text_font=('Roboto Mono', 22),
-                                               command=pre_login_screen_two)
+                                               command=pre_login_screen)
         login_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=10)
 
         window.mainloop()
@@ -227,8 +228,9 @@ def pre_login_screen():
 
 
 def pre_login_screen_two():
+    window_trans.destroy()
     tans_window.destroy()
-    logined_screen()
+
 
 
 def login(x, y):
