@@ -351,7 +351,7 @@ def logined_screen():
     deposit_button.grid(row=3, column=1, pady=20, ipadx=46)
 
     withdrawal_button = customtkinter.CTkButton(frame, text='Withdrawal', text_font=('Roboto Mono', 22),
-                                                command=pass_)  #
+                                                command=lambda: withdraw_screen() ) #
     withdrawal_button.grid(row=4, column=1, pady=20, ipadx=36)
 
     show_trans_button = customtkinter.CTkButton(frame, text='Show transaction', text_font=('Roboto Mono', 22),
@@ -436,6 +436,80 @@ def deposit(x):
 def after_deposit():
     deposit_window.destroy()
     deposit_window_top.destroy()
+
+
+def withdraw_screen():
+    global withdraw_window
+    withdraw_window = customtkinter.CTk()
+    withdraw_window.geometry('800x524')
+    withdraw_window.title('Transaction')
+
+    welcome = customtkinter.CTkLabel(withdraw_window, text="withdraw", text_font=('Roboto Mono', 30))
+    welcome.pack(pady=75)
+
+    frame = customtkinter.CTkFrame(withdraw_window, padx=10, pady=5, width=200)
+    frame.pack()
+
+    label = customtkinter.CTkLabel(frame, text='amount',
+                                   text_font=('Roboto Mono', 20))
+    label.grid(column=1, row=2, pady=20)
+
+    entry = customtkinter.CTkEntry(frame, text_font=('Roboto Mono', 15), width=150, height=35)
+    entry.grid(column=2, row=2, pady=10, padx=40)
+
+    confirm_button = customtkinter.CTkButton(frame, text='confirm', text_font=('Roboto Mono', 22),
+                                             command=lambda: withdraw(entry.get()))
+    confirm_button.grid(row=5, column=1, columnspan=10, ipadx=10, ipady=4, pady=30)
+    withdraw_window.mainloop()
+
+
+def withdraw(x):
+    with_amt = int(x)
+    if with_amt > current_user_global[3]:
+        print("please enter a lower value\n than your current balance")
+        withdraw()
+    current_balance = current_user_global[3]
+    current_balance = current_balance - with_amt
+    balance_update = 'update users set balance = {0} where userid = {1} '.format(current_balance,
+                                                                                 current_user_global[0])
+    cursor.execute(balance_update)
+    current_date_time = currenttime()
+    current_date = current_date_time[0]
+    current_time = current_date_time[1]
+    trans_log = (
+        current_user_global[0], '{}'.format(['self', 'DEBIT ', with_amt, current_balance]), current_date, current_time)
+    insert = 'insert into trans values{}'.format(trans_log)
+    cursor.execute(insert)
+    database.commit()
+    current_user_global[3] = current_balance
+
+    global withdraw_window_top
+    withdraw_window_top = customtkinter.CTkToplevel()
+    withdraw_window_top.geometry("500x300")
+    withdraw_window_top.title('Transaction')
+    spaces = customtkinter.CTkLabel(withdraw_window_top, text=''' ''', text_font=('Roboto Mono', 20))
+    spaces.pack()
+
+    welcome = customtkinter.CTkLabel(withdraw_window_top, text="withdraw successful", text_font=('Roboto Mono', 24),
+                                     text_color='#d7e3fc')
+    welcome.pack(anchor=customtkinter.N, pady=20)
+
+    label = customtkinter.CTkLabel(withdraw_window_top, text="Amount withdrawed ={} ".format(x),
+                                   text_font=('Roboto Mono', 18))
+    label.pack()
+
+    login_button = customtkinter.CTkButton(withdraw_window_top, text='continue', text_font=('Roboto Mono', 12),
+                                           command=after_withdraw)
+
+    login_button.pack(ipadx=10, ipady=4, pady=20)
+
+    withdraw_window_top.mainloop()
+
+
+def after_withdraw():
+    withdraw_window.destroy()
+    withdraw_window_top.destroy()
+
 
 def exit_():
     sys.exit('user close')
