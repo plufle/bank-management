@@ -214,13 +214,13 @@ def admin_show_trans(x):
     label = customtkinter.CTkLabel(app, text='Tranaction of {}'.format(x), text_font=('Roboto Mono', 22))
     label.grid(row=0,column = 2,pady =20)
 
-    label = customtkinter.CTkLabel(app, text='{:<10s}{:>4s}{:>15s}{:>25s}{:>14s}{:>22}'.format('FROM/TO', "CREDIT/DEBIT", 'AMOUNT',
+    label = customtkinter.CTkLabel(app, text='{:<10s}{:>4s}{:>15s}{:>25s}{:>14s}{:>18}'.format('FROM/TO', "CREDIT/DEBIT", 'AMOUNT',
                                                                         'BALANCE', 'DATE', 'TIME')
                                    , text_font=('Roboto Mono', 16))
     label.grid(row=2,column = 2,pady =20,)
 
     textbox = customtkinter.CTkTextbox(app,text_font=('Roboto Mono', 14))
-    textbox.grid(row=4, column=2,ipadx=370,padx = 80)
+    textbox.grid(row=4, column=2,ipadx=370,padx = 65)
 
 
     for i in range(len(all_trans)+1):
